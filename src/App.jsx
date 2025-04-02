@@ -19,7 +19,7 @@ function App() {
       <Navbar /> {/* Optional Navigation */}
       <Routes>
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/user/:id" element={<UserProfile />} />
+        <Route path="/user/:userId" element={<UserProfile />} />
         <Route path="/users" element={<ProfileMainWrapper />} />
       </Routes>
   
