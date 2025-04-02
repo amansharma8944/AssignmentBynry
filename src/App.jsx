@@ -20,7 +20,7 @@ function App() {
       <Routes>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/user/:userId" element={<UserProfile />} />
-        <Route path="/users" element={<ProfileMainWrapper />} />
+        <Route path="/" element={<ProfileMainWrapper />} />
       </Routes>
   
     </>
