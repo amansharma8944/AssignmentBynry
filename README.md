@@ -21,7 +21,7 @@ npm install
 ```sh
 npm run dev
 ```
-The application will start and be accessible at `http://localhost:5173/` (or another available port).
+The application will start and be accessible at `http://localhost:5173/`.
 
 ## Features
 
@@ -40,12 +40,7 @@ The application will start and be accessible at `http://localhost:5173/` (or ano
 
 ## Tech Stack
 - **Frontend:** Vite, React.js, JavaScript, Tailwind CSS
-- **Backend (if applicable):** Firebase (or other database integration)
-- **API:** REST API for user data
+- **Backend:** Firebase 
 
-## Contributing
-Feel free to fork the repository and submit pull requests with improvements or bug fixes.
 
-## License
-This project is licensed under the MIT License.
 
