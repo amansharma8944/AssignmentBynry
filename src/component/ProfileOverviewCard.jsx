@@ -181,7 +181,7 @@ const ProfileOVerViewCard=({avatar,address,name,social,summary,...profile})=>{
                         <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"></path>
                     </svg>
                   
-                    <div className="text-sm font-bold tracking-wide text-gray-600 dark:text-gray-300 font-mono text-xl ">Get Location</div>
+                    <div className="text-sm font-bold tracking-wide text-gray-600 dark:text-gray-300 font-mono text-xl "> Location</div>
                  
                 </div>
                 <div className="w-full text-center">

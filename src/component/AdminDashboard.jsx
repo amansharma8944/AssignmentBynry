@@ -35,6 +35,26 @@ const AdminDashboard = () => {
       youtube: ''
     }
   });
+
+
+
+  const [summaryError, setSummaryError] = useState('');
+
+  const validateSummary = (text) => {
+    const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+    if (wordCount < 30) {
+      setSummaryError(`Summary must be at least 30 words (currently ${wordCount})`);
+      return false;
+    }
+    setSummaryError('');
+    return true;
+  };
+
+  const handleSummaryChange = (e) => {
+    const text = e.target.value;
+    setNewUser(prev => ({ ...prev, summary: text }));
+    validateSummary(text);
+  };
   const [previewImage, setPreviewImage] = useState('');
 
   // Fetch users with pagination
@@ -121,7 +141,9 @@ const AdminDashboard = () => {
       alert('Name and email are required');
       return;
     }
-
+    if (!validateSummary(newUser.summary)) {
+        return;
+      }
     setIsSaving(true);
     
     try {
@@ -480,7 +502,49 @@ const AdminDashboard = () => {
                       />
                     </div>
 
-                    <div className="sm:col-span-6">
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    <div className="sm:col-span-6 mb-4">
+        <label htmlFor="summary" className="block text-sm font-medium text-gray-700">
+          Summary (Minimum 30 words)
+        </label>
+        <textarea
+          id="summary"
+          name="summary"
+          rows={6}
+          value={newUser.summary}
+          onChange={handleSummaryChange}
+          className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+            summaryError ? 'border-red-500' : 'border'
+          }`}
+          placeholder="Enter at least 60 words describing the user..."
+        />
+        <div className="mt-1 text-sm text-gray-500">
+          Word count: {newUser.summary.trim() === '' ? 0 : newUser.summary.trim().split(/\s+/).length}/60
+        </div>
+        {summaryError && (
+          <p className="mt-1 text-sm text-red-600">{summaryError}</p>
+        )}
+      </div>
+
+
+
+
+
+
+
+                    {/* <div className="sm:col-span-6">
                       <label htmlFor="summary" className="block text-sm font-medium text-gray-700">
                         Summary
                       </label>
@@ -492,7 +556,7 @@ const AdminDashboard = () => {
                         onChange={handleInputChange}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
-                    </div>
+                    </div> */}
 
                     {/* Social Media Links */}
                     <div className="sm:col-span-6">
@@ -532,7 +596,8 @@ const AdminDashboard = () => {
                     </button>
                     <button
                       type="submit"
-                      disabled={isSaving}
+                      disabled={isSaving || !!summaryError}
+                    
                       className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
                         isSaving ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
