@@ -5,8 +5,10 @@ import {
   query, orderBy, limit, startAfter 
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebaseConfig';
-
+import { auth, db, storage } from '../firebaseConfig';
+import mixpanel from "../component/mixpanel"
+import { onAuthStateChanged } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 const AdminDashboard = () => {
   // State management
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -186,6 +188,8 @@ const AdminDashboard = () => {
     try {
       await deleteDoc(doc(db, "users", id));
       setUsers(users.filter(user => user.id !== id));
+      mixpanel.track("Delte User",{Username:id})
+   
     } catch (error) {
       console.error("Error deleting user: ", error);
       alert("Error deleting user. Please try again.");
@@ -194,6 +198,7 @@ const AdminDashboard = () => {
 
   // Edit user
   const startEditing = (user) => {
+    mixpanel.track("Edit User",{user:user.name});
     setEditingUser(user);
     setNewUser({
       name: user.name,
@@ -235,6 +240,23 @@ const AdminDashboard = () => {
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+
+
+const navigate=useNavigate()
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User UID:", user.uid);
+      } else {
+        navigate('/login');
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
+  }, [navigate]);
+
+  
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -301,8 +323,12 @@ const AdminDashboard = () => {
                 onClick={() => {
                   resetForm();
                   setIsModalOpen(true);
+                  mixpanel.track("Add New User",{
+                    "User Type": "Admin"
+                  });
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+
               >
                 Add New User
               </button>

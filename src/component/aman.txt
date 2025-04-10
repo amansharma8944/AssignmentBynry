@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IQ Zoho Mail Assistant</title>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,0,0,0&icon_names=check_circle" />
+    <!-- Compiled and minified CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,350;0,370;0,400;0,450;0,500;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="vendor/materialize/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body v-scope class="ChatPageBody" @vue:mounted="mounted">
+    <!-- fix top menu -->
+    <div v-if="loading" class="loader-container">
+        <img width="50%" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708588/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/logo/Loop_EyeOpenClose-512px-IQAssist_qeoifj.gif" />
+    </div>
+
+    <div class="chatBack-div row" v-cloak>
+        <div class="col">
+            <div v-if="msgList.length" @click="clearChat()" class="valign-wrapper">
+                <a><img src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708433/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Delete-Icon-Incquet_IQ_jqlp2t.svg" width="20"></a>
+                <span><a class="black_link"> Clear Chat </a></span>
+            </div>
+        </div>
+        <div class="col right">
+            <!-- setting dropdown -->
+            <div class="menu-content right-align">
+                <a class="dropdown-trigger" href="#" data-target="Setting-dropdown">
+                    <img width="100%" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708451/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Settings-Op2-Icon-Incquet_IQ_p3m9cu.svg">
+                </a>
+                <ul id="Setting-dropdown" class="dropdown-content Setting-dropdown-content">
+                    <li>
+                        <a href="#!" class="clear-anchartag right-align ">
+                            <span> <img width="" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708431/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Close-Icon-Incquet_IQ_qvgotq.svg"> <span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="./updateApiKey.html">
+                            <div class="valign-wrapper">
+                            <img width="15%" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708447/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Right-Icon-Incquet_IQ_tszmwo.svg">
+                            <span>ChatGPT API Key</span>
+            </div>
+            </a>
+            </li>
+            <li class="divider" tabindex="-1"></li>
+            <li>
+                <a href="./voiceSetting.html">
+                    <div class="valign-wrapper">
+                        <img width="15%" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708453/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Sound-On-Icon-Incquet_IQ_ptmz1l.svg">
+                        <span>Voice Settings</span>
+                    </div>
+                </a>
+            </li>
+            <li class="divider" tabindex="-1"></li>
+            <li>
+                <a href="./PromptsEditNew.html">
+                    <div class="valign-wrapper">
+                        <img width="15%" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708445/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/QuickPromtV2-Icon-Incquet_IQ_d0mvxq.svg">
+                        <span>Edit Quick Prompts</span>
+                    </div>
+                </a>
+            </li>
+            <li class="divider" tabindex="-1"></li>
+            <li>
+                <a @click="logOut">
+                    <div class="valign-wrapper">
+                        <img width="15%" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708436/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Log_Out-Icon-Incquet_IQ_bvquab.svg">
+                        <span>Log Out</span>
+                    </div>
+                </a>
+            </li>
+            </ul>
+        </div>
+        <!-- setting dropdown -->
+    </div>
+    </div>
+
+    <!-- fix top menu -->
+    <div class="container ChatPage-wrap" v-cloak>
+        <!-- messenger loader | Blank state -->
+        <div v-if="!msgList.length" class="messengerBodyLoader">
+            <div>
+                <img width="50%" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708588/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/logo/Loop_EyeOpenClose-512px-IQAssist_qeoifj.gif" />
+            </div>
+            <h3 class="titleText"> Hello </h3>
+            <p class="smallText"> How can i assist you today<br> with your e-mails?</p>
+        </div>
+        <!-- messenger loader | Blank state -->
+
+        <!-- messenger body -->
+        <div v-else class="messengerBody" id="messengerBody">
+            <div v-for="(msg,index) in msgList" :key="index">
+                <div v-if="msg.role == 'user'" class="row m-0">
+                    <div class="user-responseWrap">
+                        <div :class="{'user-response': !msg.chatExpanded, 'user-response-expanded': msg.chatExpanded}" :id="`assistant-resp-${msg.id}`">
+                            <p>{{msg.content}}</p>
+                            <div v-if="msg.content.length >= 120">
+                                <a v-if="!msg.chatExpanded" class="read-more" @click="readMore(msg.id)">Read More</a>
+                                <a v-else class="read-more" @click="readLess(msg.id)">Read less</a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <!--@mouseover="hoverIndex = index;" @mouseleave="hoverIndex = null;"-->
+                <div v-else class="row m-0">
+                    <div v-if="msg.content" class="assistant-responseWrap">
+                        <div class="col s12 p-0">
+                            <div :class="{'assistant-response' : !msg.chatExpanded,'assistant-response-expanded':msg.chatExpanded}">
+                                <p v-html="highlightText(msg.content)"></p>
+                                <div v-if="msg.content.length >= 121">
+                                    <a v-if="!msg.chatExpanded" class="read-more" @click="readMore(msg.id)">Read More</a>
+                                    <a v-else class="read-more" @click="readLess(msg.id)">Read Less</a>
+                                </div>
+                                <img v-if="msgList.length-1 == index" class="assist_icon" src="https://res.cloudinary.com/incquet-solution/image/upload/v1731952047/incquet/Products/Widgets/IQ%20Assistant/IQAssitant_yakyjk.svg" alt="" width="35">
+                                <img v-else class="assist_icon_dots" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708721/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/logo/IQ_Assistant_Logo-Compressed_idvvbd.svg" alt="" width="15">
+
+                            </div>
+                        </div>
+                        <!--v-show="hoverIndex == index"-->
+                        <div class="assit-quickAction col s12">
+                            <a @click="addDataInOpenComposedMail(highlightText(msg.content))" class="tooltip">
+                                <img src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708441/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Paste_to_Email-Icon-Incquet_IQ_ooehjb.svg" width="22">
+                                <span class="infoTooltip">Insert</span>
+                            </a>
+                            <a @click="addDataInComposedMail(highlightText(msg.content),msgList[index-1].content)" class="tooltip">
+                                <img src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708365/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Add_to_Email-Icon-Incquet_IQ_v6q4vi.svg" width="22">
+                                <span class="infoTooltip">Compose</span>
+                            </a>
+                            <a v-show="isSpeaking && speakingIndex === index" class="tooltip" @click="stopSpeaking()">
+                                <img src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708452/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Sound-Off-Icon-Incquet_IQ_gh3wpm.svg" width="22">
+                                <span class="infoTooltip">Stop</span>
+                            </a>
+                            <a v-else v-show="!(isSpeaking && speakingIndex === index)" @click="bolo(msg.content,index)" class="tooltip">
+                                <img src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708453/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Sound-On-Icon-Incquet_IQ_ptmz1l.svg" width="22">
+                                <span class="infoTooltip">Read</span>
+                            </a>
+
+                        </div>
+                    </div>
+                    <div v-else class="assistant-responseWrap">
+                        <div class="assistant-response mb-2">
+                            <p>...</p>
+                            <img class="assist_icon" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708587/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/logo/Loop_EyeClosed-128px-IQAssist_ygexlg.gif" alt="" width="40">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- row -->
+        </div>
+        <!-- messenger body -->
+    </div>
+    <!-- ChatPage-wrap -->
+    <!-- user input bottom part footer -->
+
+    <div class="chatInput-Wrap valign-wrapper" v-cloak>
+        <div class="QuickPromt-action">
+            <a @click="sendOpenendMailToChatGPT" v-cloak class="tooltip">
+
+                <img :class="{ 'disabled-icon': openMailObject === null }" src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708453/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Upload_from_Email-Icon-Incquet_IQ_wzlzgq.svg" width="24px">
+                <span v-if="openMailObject !== null" class="infoTooltip">Upload Selected Email</span>
+                <span v-else class="warningTooltip">Select one email to upload.</span>
+            </a>
+            <a v-show="allPrompts.length > 0" class="dropdown-trigger tooltip" data-target="QuickPrompt-dropdown">
+                <img src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708445/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/QuickPromtV2-Icon-Incquet_IQ_d0mvxq.svg" width="24px">
+                <span class="infoTooltip">Quick Prompts</span>
+            </a>
+
+            <a v-show="allPrompts.length == 0" @click="sendToPromptPage" class=" tooltip">
+                <img src="https://res.cloudinary.com/incquet-solution/image/upload/v1734708445/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/QuickPromtV2-Icon-Incquet_IQ_d0mvxq.svg" width="24px">
+                <span class="infoTooltip">No prompts set yet. Set it in settings.</span>
+            </a>
+
+            <!-- quick prompt dropdown -->
+            <div class="menu-content left-align">
+                <ul id="QuickPrompt-dropdown" class="dropdown-content Prompt-dropdown-content">
+                    <li v-for="prompts in allPrompts" :key="prompt.id">
+                        <a @click="callGPT(prompts.prompt)">
+                            <span>{{prompts.prompt}}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- quick  prompt dropdown -->
+        </div>
+        <div :class="{ chatInputFieldExpanded: isExpanded }" class="chatInputField" id="input-container">
+            <div class="row m-0">
+                <div class="col s10" :class="{ s12 : isExpanded}">
+                    <textarea v-model="text" id="prompt-input" rows="1" @input="handleInputSize" @keydown="handleKeydown" @keyup="handleInputSize" class="materialize-textarea" placeholder="Type Message..."></textarea>
+                </div>
+                <div class="col s2" :class="{ s12 : isExpanded}">
+                    <span class="Inputaction-icon"> 
+                        <!--<a href="#"><img src="https://res.cloudinary.com/incquet-solution/image/upload/v1732995451/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/Icon_fmlzu7.png" width="16"></a>-->
+                        <!--<i class="material-icons" width="16">mic_none</i>-->
+                    <a v-if="text.length > 0" @click="callGPT(text)">
+                        <img src="https://res.cloudinary.com/incquet-solution/image/upload/v1734784941/incquet/Products/Widgets/IQ%20Assistant%20Zoho%20mail/icons/Send-Icon-Incquet_IQ_njlolx.svg" width="90%" >
+                    </a>
+                    <!--<i v-if="text.length > 0"  @click="callGPT(text)" class="material-icons" >send</i>-->
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <!-- user input bottom part -->
+    <script async=false>
+        (function() {
+            var src = window.location.host.split(".").slice(2).join(".") === "com.cn" ?
+                "zohomailsdk.js" :
+                "zohomailsdk2.js";
+            document.write('<script src="' + src + '"><\/script>');
+        })();
+    </script>
+    <script type="text/javascript" src="vendor/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="vendor/materialize/js/materialize.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.0/highlight.min.js"></script>
+
+    <script type="module" src="./script.js"></script>
+
+
+
+</body>
+
+</html>

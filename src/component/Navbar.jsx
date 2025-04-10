@@ -14,12 +14,36 @@
 
 
 
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {  onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../firebaseConfig";
+// import { auth } from "../firebaseConfig";
+// import firebase from "firebase/compat/app";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate=useNavigate()
+  const [userAvailabe,setUserAvailable]=useState(null)
+ 
+  useEffect(() => {
+    // Set up the auth state listener
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserAvailable(user);
+      } else {
+        setUserAvailable(null);  // You can choose to set to null if the user is logged out
+      }
+    });
+
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
+  }, []); // Empty dependency array ensures this runs once on mount
+
+
+  
+
 
   return (
     <nav className="bg-white shadow-lg">
@@ -70,6 +94,20 @@ const Navbar = () => {
             >
               Users List
             </Link>
+            {userAvailabe&&<button
+              
+            onClick={()=>{
+              signOut(auth).then(() => {
+
+               navigate("/login")
+              }).catch((error) => {
+                // An error happened.
+                console.log(error)
+              });
+            }}
+            >
+            logout
+            </button>}
           </div>
 
          

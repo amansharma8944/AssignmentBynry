@@ -1,14 +1,32 @@
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import { auth, db } from '../firebaseConfig';
 import ProfileOVerViewCard from "./ProfileOverviewCard";
 import { FiMapPin } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import mixpanel from './mixpanel.js'; // Adjust the import based on your project structure
 
 const ProfileMainWrapper = () => {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  
+
+// const navigate=useNavigate()
+  
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("User UID:", user.uid);
+    } else {
+      navigate('/login');
+    }
+  });
+
+  return () => unsubscribe(); // Cleanup on unmount
+}, [navigate]);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -28,6 +46,14 @@ const ProfileMainWrapper = () => {
 
     fetchProfiles();
   }, []);
+
+useEffect(()=>{
+
+  mixpanel.track("Profile Page Visited", {
+    "user_id": auth.currentUser ? auth.currentUser.uid : null,
+  })
+
+  },[])
 
   
 
